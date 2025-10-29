@@ -157,16 +157,16 @@ PageView.php
 ## 🧭 Request Flow Diagram
 
 ```mermaid
-graph TD;
-    A[Client Browser] -->|HTTP Request| B[public/index.php];
-    B --> C[system/Bootstrap/FrontController.php];
-    C --> D[system/Bootstrap/Router.php];
-    D --> E[app/Controllers/.../BaseController.php];
-    E --> F[PageController.php];
-    F -->|optional| G[PageModel.php];
-    F --> H[PageView.php];
-    G --> H;
-    H --> I[Client Browser (Rendered HTML)];
+graph TD
+    A[Client Browser] -->|HTTP Request| B[public/index.php]
+    B --> C[system/Bootstrap/FrontController.php]
+    C --> D[system/Bootstrap/Router.php]
+    D --> E[app/Controllers/.../BaseController.php]
+    E --> F[PageController.php]
+    F -->|optional| G[PageModel.php]
+    F --> H[PageView.php]
+    G --> H
+    H --> I[Client Browser - Rendered HTML]
 ```
 
 This diagram visualises how every incoming HTTP request is processed inside the `bsg.world_backend`,
