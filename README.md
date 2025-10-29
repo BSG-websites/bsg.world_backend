@@ -3,6 +3,7 @@
 Backend codebase for **bsg.world**.  
 This repository contains everything that makes the site work **on the server side** (without the frontend source): form handlers, Telegram notifications, email autoreplies, and other backend logic. It is effectively a **production snapshot** of the backend files copied from the live hosting environment.
 
+---
 
 ## 🧭 Repository Scope
 
@@ -34,6 +35,7 @@ It follows a modular, extensible structure with a clear separation of responsibi
   `websites_frontend_shared` → `npm run build`  
   <https://github.com/BSG-websites/websites_frontend_shared>
 
+---
 
 ## 📁 Project Structure
 
@@ -198,7 +200,6 @@ The backend follows a clear **layered MVC architecture** with separation between
   - Project constants and path definitions (`app/Config/Constants.php`, `Paths.php`).
   - Environment management for different deployment contexts (`system/Environment/Environment.php`).
 
----
 
 Each layer is **loosely coupled**, ensuring modularity and maintainability —  
 new features can be implemented by extending only the relevant controller, model, and view without modifying the rest of the system.
