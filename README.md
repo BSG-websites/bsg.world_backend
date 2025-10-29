@@ -167,6 +167,7 @@ graph TD
 This diagram visualises how every incoming HTTP request is processed inside the `bsg.world_backend`,
 from the first entry point to the final rendered output.
 
+---
 
 ### 🧩 Core Layers
 
