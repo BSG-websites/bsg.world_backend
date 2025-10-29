@@ -34,6 +34,7 @@ It follows a modular, extensible structure with a clear separation of responsibi
   `websites_frontend_shared` → `npm run build`  
   <https://github.com/BSG-websites/websites_frontend_shared>
 
+---
 
 ## 📁 Project Structure
 
@@ -200,3 +201,83 @@ The backend follows a clear **layered MVC architecture** with separation between
 
 Each layer is **loosely coupled**, ensuring modularity and maintainability —  
 new features can be implemented by extending only the relevant controller, model, and view without modifying the rest of the system.
+
+---
+
+## ✉️ Form Handling & Notifications
+
+This section describes how the backend processes form submissions, sends automatic replies to users,  
+and delivers real-time submission notifications to Telegram.
+
+
+## 1️⃣ Email Autoreply to User
+
+When a visitor submits a form, the backend automatically sends a confirmation (autoreply) email to the address they provided.
+
+**Implementation details:**
+
+- Email credentials are stored in `app/Config/Constants.php`:
+  - `GMAIL_USER` — sender address (Gmail account)
+  - `GMAIL_APP_PASS` — Gmail App Password for SMTP authentication
+- All form submissions are handled by  
+  `app/Controllers/public/FormController.php`, which calls logic from  
+  `app/Models/public/Forms/Forms.php`.
+- Emails are sent using **PHPMailer v6.10.0**, located at  
+  `app/Utils/libs/PHPMailer/`.
+- The helper responsible for sending emails is  
+  `app/Utils/email-sender.php`, which:
+  - Connects to Gmail via SMTP (using `GMAIL_USER` and `GMAIL_APP_PASS`).
+  - Sends an **autoreply email** to the user confirming their submission.
+
+
+## 2️⃣ Telegram Notifications for Admins
+
+Each form submission also triggers a Telegram notification sent to the internal admin group.
+
+**Implementation details:**
+
+- Telegram configuration is stored in `app/Config/Constants.php`:
+  - `TG_BOT_TOKEN` — Telegram bot token
+  - `TG_GROUP_ID` — chat/group ID where notifications are sent
+- Message sending is handled by  
+  `app/Utils/telegram-bot.php`.
+- The message text (form data, timestamps, etc.) is assembled in  
+  `app/Controllers/public/FormController.php`.
+
+
+## 🧠 Processing Algorithm Overview
+
+Below is the simplified lifecycle of a form submission:
+
+1. User clicks the **Submit** button on a frontend form.  
+2. The backend **validates** submitted data.  
+3. The data is **stored** in the corresponding MySQL table  
+   (`form_[form_name]_requests`).  
+4. The backend **composes** a Telegram message summarising the submission.  
+5. The message is **sent to Telegram** via the configured bot.  
+6. An **autoreply email** is sent to the user confirming successful submission.
+
+
+## 🔄 Example Flow (Simplified)
+
+```mermaid
+sequenceDiagram
+    participant U as User (Browser)
+    participant F as FormController
+    participant M as Forms.php (Model)
+    participant DB as MySQL
+    participant T as Telegram Bot
+    participant E as Email Sender
+
+    U->>F: Submit form
+    F->>M: Validate & process data
+    M->>DB: Insert new record
+    F->>T: Send Telegram notification
+    F->>E: Send autoreply email to user
+    E-->>U: Confirmation email delivered
+````
+
+
+> 🧩 **Note:**
+> Both Telegram and Gmail credentials are configured in `Constants.php`.
+> To migrate the system, ensure these environment constants are correctly updated in the new environment before deployment.
