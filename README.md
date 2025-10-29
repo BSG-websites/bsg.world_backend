@@ -3,7 +3,6 @@
 Backend codebase for **bsg.world**.  
 This repository contains everything that makes the site work **on the server side** (without the frontend source): form handlers, Telegram notifications, email autoreplies, and other backend logic. It is effectively a **production snapshot** of the backend files copied from the live hosting environment.
 
----
 
 ## 🧭 Repository Scope
 
@@ -11,7 +10,6 @@ This repository contains everything that makes the site work **on the server sid
 - **Built assets present** — CSS/JS/HTML bundled by the frontend repo and deployed here for serving.
 - **Production snapshot** — a direct copy of the backend files from the live host of **bsg.world**.
 
----
 
 ## 🧱 Key Principles
 
@@ -27,7 +25,6 @@ It follows a modular, extensible structure with a clear separation of responsibi
 - **Extendability** — new features can be added with minimal changes to routes, controllers, or models.
 - **Lightweight and dependency-free** — no external frameworks; the system runs entirely on pure PHP for maximum control and performance.
 
----
 
 ## 🧰 Tech Stack
 
@@ -37,7 +34,6 @@ It follows a modular, extensible structure with a clear separation of responsibi
   `websites_frontend_shared` → `npm run build`  
   <https://github.com/BSG-websites/websites_frontend_shared>
 
----
 
 ## 📁 Project Structure
 
@@ -125,7 +121,6 @@ Each access level represents a separate context of the application with its own 
 * `auth/` — controllers and views available only to authenticated users.
 * `admin/` — restricted area for administrators or staff.
 
----
 
 ### ⚙️ How It Works Internally
 
@@ -171,3 +166,38 @@ graph TD
 
 This diagram visualises how every incoming HTTP request is processed inside the `bsg.world_backend`,
 from the first entry point to the final rendered output.
+
+
+### 🧩 Core Layers
+
+The backend follows a clear **layered MVC architecture** with separation between routing, logic, data, and presentation.
+
+- **🧭 Routing Layer**
+  - `Router.php` resolves incoming HTTP requests.
+  - Maps URIs to controllers and actions defined in `app/Routes/`.
+  - Applies access-level rules (e.g. `public`, `auth`, `admin`) before dispatching.
+
+- **🧩 Controllers**
+  - Handle requests, validate input, and manage workflow between layers.
+  - Invoke the appropriate model methods to fetch or process data.
+  - Pass processed results to the corresponding view for rendering.
+
+- **📊 Models**
+  - Encapsulate **domain logic** and **business rules**.
+  - Interact with the database via `system/Database/Database.php`.
+  - Contain reusable query methods and data transformations.
+
+- **🎨 Views**
+  - Responsible for rendering HTML or JSON responses.
+  - Use dynamic PHP templates located under `app/Views/`.
+  - Include localization variants (e.g., `ua.php`, `en.php`).
+
+- **🛠 Utilities & Config**
+  - Reusable helpers and third-party integrations (`app/Utils/`).
+  - Project constants and path definitions (`app/Config/Constants.php`, `Paths.php`).
+  - Environment management for different deployment contexts (`system/Environment/Environment.php`).
+
+---
+
+Each layer is **loosely coupled**, ensuring modularity and maintainability —  
+new features can be implemented by extending only the relevant controller, model, and view without modifying the rest of the system.
