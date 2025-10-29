@@ -92,9 +92,9 @@ Global utilities and helpers are stored in `app/Utils/`, while configuration fil
 │   │   └── Database.php              # Database abstraction layer and query builder
 │   └── Environment/
 │       └── Environment.php           # Defines environment mode (dev/test/prod)
+```
 
-
-### 🧩 Access-Level Logic Overview
+## 🧩 Access-Level Logic Overview
 
 Access control is managed through `app/Utils/user-access-levels.php`.  
 Depending on the declared access type in the route (`public`, `auth`, `admin`, etc.),  
@@ -116,7 +116,7 @@ function checkingUserAccessLevel($type)
             break;
     }
 }
-````
+```
 
 Each access level represents a separate context of the application with its own routing and security boundaries:
 
@@ -153,9 +153,8 @@ PageView.php
 6. **`PageModel.php`** – optional layer encapsulating business logic and DB queries.
 7. **`PageView.php`** – renders the final HTML output and returns it to the client.
 
-```
 
-### 🧭 Request Flow Diagram
+## 🧭 Request Flow Diagram
 
 ```mermaid
 graph TD;
