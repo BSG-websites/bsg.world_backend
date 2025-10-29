@@ -3,7 +3,6 @@
 Backend codebase for **bsg.world**.  
 This repository contains everything that makes the site work **on the server side** (without the frontend source): form handlers, Telegram notifications, email autoreplies, and other backend logic. It is effectively a **production snapshot** of the backend files copied from the live hosting environment.
 
----
 
 ## 🧭 Repository Scope
 
@@ -35,7 +34,6 @@ It follows a modular, extensible structure with a clear separation of responsibi
   `websites_frontend_shared` → `npm run build`  
   <https://github.com/BSG-websites/websites_frontend_shared>
 
----
 
 ## 📁 Project Structure
 
@@ -124,7 +122,7 @@ Each access level represents a separate context of the application with its own 
 * `admin/` — restricted area for administrators or staff.
 
 
-### ⚙️ How It Works Internally
+## ⚙️ How It Works Internally
 
 The request lifecycle inside the backend follows a clean sequential flow:
 
@@ -169,9 +167,8 @@ graph TD
 This diagram visualises how every incoming HTTP request is processed inside the `bsg.world_backend`,
 from the first entry point to the final rendered output.
 
----
 
-### 🧩 Core Layers
+## 🧩 Core Layers
 
 The backend follows a clear **layered MVC architecture** with separation between routing, logic, data, and presentation.
 
