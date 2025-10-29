@@ -281,3 +281,47 @@ sequenceDiagram
 > 🧩 **Note:**
 > Both Telegram and Gmail credentials are configured in `Constants.php`.
 > To migrate the system, ensure these environment constants are correctly updated in the new environment before deployment.
+
+---
+
+## 🔐 Google reCAPTCHA Integration
+
+To protect all public forms from spam and automated submissions,  
+the backend integrates **Google reCAPTCHA v2** verification.
+
+
+## ⚙️ Configuration
+
+reCAPTCHA credentials are defined in the global configuration file:
+
+- `app/Config/Constants.php`
+  - `CAPTCHA_SITEKEY` — public key used in frontend forms.
+  - `CAPTCHA_SECRET_KEY` — secret key used for server-side verification.
+
+These constants are loaded globally and injected dynamically into templates when rendering forms.
+
+
+## 🧩 Implementation Details
+
+Form rendering logic is managed by:
+
+- `app/Models/public/PagesTemplates.php` → method **`showForm()`**
+
+This method dynamically selects which form to render (e.g. `blog-buffer`, `vacancy`, `standard`, etc.)
+and passes the CAPTCHA sitekey into the HTML template.
+
+All form view templates are located under:
+
+- `app/Views/public/components/form/`
+
+Each form template includes the reCAPTCHA block, where `{CAPTCHA_SITEKEY}`  
+is automatically replaced with the value defined in `Constants.php`.
+
+
+## 💻 Example Integration (Vacancy Form)
+
+```html
+<div class="form-field__captcha">
+    <div class="form-field__captcha-item form-field__captcha-item--lg g-recaptcha" data-sitekey="{CAPTCHA_SITEKEY}"></div>
+    <div class="form-field__captcha-item form-field__captcha-item--sm g-recaptcha" data-sitekey="{CAPTCHA_SITEKEY}" data-size="compact"></div>
+</div>
