@@ -325,3 +325,126 @@ is automatically replaced with the value defined in `Constants.php`.
     <div class="form-field__captcha-item form-field__captcha-item--lg g-recaptcha" data-sitekey="{CAPTCHA_SITEKEY}"></div>
     <div class="form-field__captcha-item form-field__captcha-item--sm g-recaptcha" data-sitekey="{CAPTCHA_SITEKEY}" data-size="compact"></div>
 </div>
+
+---
+
+## 💰 Pricing System Overview
+
+This section explains how pricing data is updated, rendered, and dynamically refreshed  
+when users interact with country or currency selectors on the website.
+
+
+## 1️⃣ Automatic Updates of Countries and Currencies
+
+To ensure pricing pages always display up-to-date information about available countries and currencies,  
+two **daily Cron jobs** are configured on the hosting server (Ukraine.com.ua).
+
+Each Cron job performs an **HTTP request** to dedicated update endpoints:
+
+- `https://bsg.world/update-pricing-countries` — updates available countries  
+- `https://bsg.world/update-pricing-currencies` — updates available currencies  
+
+### 🔧 Technical Details
+
+| Endpoint | Controller Method | Model | Database Table | Description |
+|-----------|------------------|--------|----------------|--------------|
+| `/update-pricing-countries` | `updatePricingCountries()` | `app/Models/public/Pricing/Pricing.php` | `pricing_popup_countries` | Updates available countries |
+| `/update-pricing-currencies` | `updatePricingCurrencies()` | `app/Models/public/Pricing/Pricing.php` | `pricing_popup_currencies` | Updates available currencies |
+
+**Update Algorithm (Countries):**
+- Fetches the latest list of countries via  
+  `http://translations.bsg.world/api/translate/countries/en`.  
+- Removes **RU** and **BY** entries.  
+- Updates MySQL table `pricing_popup_countries`.  
+- Regenerates HTML templates for all languages in  
+  `app/Views/public/components/pricing-api-form/selectors/country/`.
+
+**Update Algorithm (Currencies):**
+- Fetches the latest list of currencies via  
+  `https://one-api.bsg.world/api/internal/currencies`.  
+- Removes **RUB** and **BYN** entries.  
+- Updates MySQL table `pricing_popup_currencies`.  
+- Regenerates HTML templates for all languages in  
+  `app/Views/public/components/pricing-api-form/selectors/currency/`.
+
+
+## 2️⃣ Rendering Pricing Pages (View Generation)
+
+When a pricing page (with calculator) is opened, the following logic executes:
+
+1. The relevant controller method (e.g. `pricingSMSPageView`) from  
+   `app/Controllers/public/PricingController.php` handles the route defined in `app/Routes/http.php`.
+2. The method calls `determineUserCountryData()` from  
+   `app/Models/public/Pricing/Pricing.php` to detect the user's country.
+3. The detected country data is passed to the corresponding pricing **view**.
+4. Views for all pricing pages are located in:  
+   `app/Views/public/pricing/`.
+5. The resulting page view is rendered dynamically based on:
+   - user location,
+   - available countries/currencies,
+   - current exchange rates.
+
+
+## 3️⃣ Dynamic Country/Currency Selection (AJAX Updates)
+
+When a user changes the **country** or **currency** in the pricing calculator,  
+an **XMLHttpRequest (Axios)** is sent with parameters:
+
+```json
+{
+  "r_name": "update-pricing-api-form",
+  "country": "<country_code>",
+  "currency": "<currency_code>"
+}
+````
+
+## 📡 Processing Logic
+
+1. The request is handled by
+   `updatePricingAPIForm()` in `app/Controllers/public/PricingController.php`.
+2. The controller delegates logic to
+   `app/Models/public/Pricing/Pricing.php`.
+3. Validation checks ensure the selected country/currency exist in:
+
+   * `pricing_popup_countries`
+   * `pricing_popup_currencies`
+4. The model sends a request to the **BSG API** endpoint:
+   `https://one-api.bsg.world/api/internal/2fa/authentications/full-price`
+5. The backend composes updated HTML with the new pricing data.
+6. The new HTML replaces the calculator content dynamically on the frontend
+   (without full page reload).
+
+
+## 🔄 Sequence Overview
+
+```mermaid
+sequenceDiagram
+    participant C as Cron Job
+    participant B as bsg.world Backend
+    participant DB as MySQL
+    participant API as BSG API
+    participant U as User Browser
+
+    C->>B: GET /update-pricing-countries
+    B->>API: Fetch country list
+    API-->>B: Return JSON data
+    B->>DB: Update countries table
+
+    C->>B: GET /update-pricing-currencies
+    B->>API: Fetch currency list
+    API-->>B: Return JSON data
+    B->>DB: Update currencies table
+
+    U->>B: Open pricing page
+    B->>DB: Load user country/currency
+    B->>U: Render page view
+
+    U->>B: Select new country/currency
+    B->>API: Request updated pricing data
+    API-->>B: Return new price
+    B-->>U: Update calculator (replace HTML)
+```
+
+> 🧩 **Note:**
+> Both update endpoints are executed automatically once per day via Cron.
+> Manual triggering via browser or CURL is also possible for immediate updates during testing or deployments.
